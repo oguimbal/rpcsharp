@@ -6,6 +6,8 @@ This is still a baby project... I will publish it on nuget soon.
 
 ... and add much more features
 
+... and develop automatic client-side interfaces implementation (will allow to manipulate client side objects that are defined by a common inteface, which implementation only exists server-side)
+
 ...soon.
 
 What is it, and what does it do ?
@@ -42,7 +44,8 @@ public class MyService : IRpcService
     }
     
     IRpcRoot IRpcService.ResolveReference(string reference){
-      // get an object by reference... either call a service, get object from cache, or whatever. Your call.
+      // get an object by reference...
+      // either call a service, get object from cache, or whatever. Your call.
     }
 }
 ```
@@ -54,8 +57,10 @@ his is just a hook that links an inbound request of your communication framework
 SerializedEvaluation IMyServer.InvokeRemote(SerializedEvaluation evaluated){
     return RpcEvaluator.HandleIncomingRequest(evaluated, reference =>
     { 
-      // this is a reference resolver. Used to transform client side objects reference to server side objects
-        // ... do whatever you have to do this to return a reference which implements the same interface
+      // this is a reference resolver.
+      // Used to transform client side objects reference to server side objects
+        // ... do whatever you have to do this to return
+        //   a reference which implements the same interface
         //   as your corresponding client-side object
         return GetMyObjectByReference(reference);
     });
@@ -66,7 +71,7 @@ SerializedEvaluation IMyServer.InvokeRemote(SerializedEvaluation evaluated){
 
 ```C#
 MyService service; // your initialized service
-MyObject remoteA, remoteB; // objects that implement IRpcRoot
+IMyObjectA remoteA; IMyObjectB remoteB; // objects that implement IRpcRoot
 
 // this will only take one network call, and execute compositions server-side
 var result = service.Call(()=> remoteA.GetSomethin(remoteB.Crap()) + remoteA.ReturnInt());
