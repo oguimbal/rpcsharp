@@ -4,9 +4,13 @@ This is still a baby project... I will publish it on nuget soon.
 
 ... and create sample projects
 
-... and add much more features
+... and develop multi-statements calls
 
 ... and develop automatic client-side interfaces implementation (will allow to manipulate client side objects that are defined by a common inteface, which implementation only exists server-side)
+
+... and develop promises
+
+... and add much more features
 
 ...soon.
 
