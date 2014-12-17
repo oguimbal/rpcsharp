@@ -1,43 +1,87 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Rpcsharp
 {
     public static class RpcExtensions
     {
-        public static async Task CallAsync(this IRpcServiceAsync service, Expression<Action> call)
+        /// <summary>
+        /// Builds a reusable and awaitable RPC
+        /// </summary>
+        /// <remarks>
+        /// This server call is not started until awaited.
+        /// Unlike tasks, awaiting it multiple times will trigger the same server action multiple times.
+        /// It can also be reused in children RPCs definitions as a "sub-procedure"
+        /// </remarks>
+        /// <returns>An awaitable object that represents this remote call</returns>
+        public static RpcPromise CallAsync(this IRpcServiceAsync service, Expression<Action> call)
         {
-            var visitor = new RpcCallVisitor();
-            var visited = visitor.Serialize(call.Body);
-            var result = await service.InvokeRemoteAsync(visited);
-            await RpcEvaluator.HandleResultAsync(result, service.ResolveReferenceAsync);
+            return new RpcPromise(service, call);
         }
 
-        public static async Task<T> CallAsync<T>(this IRpcServiceAsync service, Expression<Func<T>> call)
+        /// <summary>
+        /// Builds a reusable and awaitable RPC that returns an object
+        /// </summary>
+        /// <remarks>
+        /// This server call is not started until awaited.
+        /// Unlike tasks, awaiting it multiple times will trigger the same server action multiple times.
+        /// It can also be reused in children RPCs definitions as a "sub-procedure"
+        /// </remarks>
+        /// <returns>An awaitable object that represents this remote call</returns>
+        public static RpcPromise<T> CallAsync<T>(this IRpcServiceAsync service, Expression<Func<T>> call)
         {
-            var visitor = new RpcCallVisitor();
-            var visited = visitor.Serialize(call.Body);
-            var result = await service.InvokeRemoteAsync(visited);
-            var handled = await RpcEvaluator.HandleResultAsync(result, service.ResolveReferenceAsync);
-            return (T) handled;
+            return new RpcPromise<T>(service, call);
         }
+
+
+        /// <summary>
+        /// Build a synchronous RPC
+        /// </summary>
+        /// <remarks>
+        /// This server call is started immediatly, and will return when operation is finished.
+        /// To reuse operations a synchronous call in other procedures, see CallPromise() function.
+        /// </remarks>
         public static void Call(this IRpcService service, Expression<Action> call)
         {
-            var visitor = new RpcCallVisitor();
-            var visited = visitor.Serialize(call.Body);
-            var result = service.InvokeRemote(visited);
-            RpcEvaluator.HandleResult(result,service.ResolveReference);
+            new RpcPromise(service, call).Execute();
         }
 
+        /// <summary>
+        /// Build a synchronous RPC that returns an object
+        /// </summary>
+        /// <remarks>
+        /// This server call is started immediatly, and will return when operation is finished.
+        /// To reuse operations a synchronous call in other procedures, see CallPromise() function.
+        /// </remarks>
         public static T Call<T>(this IRpcService service, Expression<Func<T>> call)
         {
-            var visitor = new RpcCallVisitor();
-            var visited = visitor.Serialize(call.Body);
-            var result = service.InvokeRemote(visited);
-            var handled = RpcEvaluator.HandleResult(result, service.ResolveReference);
-            return (T) handled;
+            return new RpcPromise<T>(service, call).Execute();
         }
 
+        /// <summary>
+        /// Builds a reusable and awaitable RPC
+        /// </summary>
+        /// <remarks>
+        /// This server call is not started until awaited.
+        /// Unlike tasks, awaiting it multiple times will trigger the same server action multiple times.
+        /// It can also be reused in children RPCs definitions as a "sub-procedure"
+        /// </remarks>
+        public static RpcPromise CallPromise(this IRpcService service, Expression<Action> call)
+        {
+            return new RpcPromise(service, call);
+        }
+
+        /// <summary>
+        /// Builds a reusable and awaitable RPC that returns an object
+        /// </summary>
+        /// <remarks>
+        /// This server call is not started until awaited.
+        /// Unlike tasks, awaiting it multiple times will trigger the same server action multiple times.
+        /// It can also be reused in children RPCs definitions as a "sub-procedure"
+        /// </remarks>
+        public static RpcPromise<T> CallPromise<T>(this IRpcService service, Expression<Func<T>> call)
+        {
+            return new RpcPromise<T>(service, call);
+        }
     }
 }

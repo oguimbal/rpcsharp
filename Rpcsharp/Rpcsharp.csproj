@@ -52,6 +52,7 @@
     <Compile Include="RpcCallVisitor.cs" />
     <Compile Include="ExpressionSimplifier.cs" />
     <Compile Include="RpcEvaluator.cs" />
+    <Compile Include="RpcPromise.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

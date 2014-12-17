@@ -54,9 +54,6 @@ namespace Rpcsharp
 
             readonly HashSet<ParameterExpression> evaluableParameters = new HashSet<ParameterExpression>();
 
-            public Nominator()
-            {
-            }
 
             protected override Expression VisitParameter(ParameterExpression node)
             {
@@ -68,7 +65,22 @@ namespace Rpcsharp
             {
                 if (!node.Method.IsStatic)
                 {// potential rpc call
-                    
+
+                    if (typeof (IRpcPromise).IsAssignableFrom(node.Object.Type))
+                    {
+                        if (node.Method.Name != "Execute")
+                            throw new InvalidExpressionInRpcCallException(node, "Cannot execute method '" + node.Method.Name + "' on promise. Only 'Execute()' is alowed");
+
+                        evaluate = false;
+
+                        // just check that the object is a reference, and that the user is not doing something funny.
+                        Visit(node.Object);
+                        if (!mayBeEvaluated.Contains(node.Object))
+                            throw new InvalidExpressionInRpcCallException(node.Object, "Exepcting a localy-evaluable reference to a promise");
+
+                        return node;
+                    }
+
                     evaluate = evaluate && node.Method.GetCustomAttribute<RpcAttribute>(true) == null;
 
                     if (evaluate && !node.Object.Type.IsInterface && typeof (IRpcRoot).IsAssignableFrom(node.Object.Type))
@@ -127,11 +139,17 @@ namespace Rpcsharp
             {
                 if (mayBeEvaluated.Contains(node))
                 {
+                    if (node.NodeType == ExpressionType.Constant)
+                    {
+                        // no need to compile something for constants
+                        return node;
+                    }
+
                     var value = Expression.Lambda<Func<object>>(Expression.Convert(node, typeof(object))).Compile()();
                     return Expression.Constant(value, node.Type);
                 }
-                else
-                    return base.Visit(node);
+
+                return base.Visit(node);
             }
         }
     }

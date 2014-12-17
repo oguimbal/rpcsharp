@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Rpcsharp;
@@ -17,11 +14,18 @@ namespace RpcTests.Model
 
     class FakeService : IRpcServiceAsync
     {
-        bool alreadyCalled = false;
+        readonly int _expectCallCount;
+        public int CallCount { get; private set; }
+
+        public FakeService(int expectCallCount = 1)
+        {
+            _expectCallCount = expectCallCount;
+        }
+
         public Task<SerializedEvaluation> InvokeRemoteAsync(SerializedEvaluation visited)
         {
-            Assert.IsFalse(alreadyCalled, "Called twice");
-            alreadyCalled = true;
+            Assert.IsFalse(++CallCount > _expectCallCount, "Called > " + _expectCallCount + " times");
+
             var ret = RpcEvaluator.HandleIncomingRequest(visited, r =>
             {
                 if (r == "ClassRootRef")

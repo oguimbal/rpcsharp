@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Rpcsharp
 {
@@ -55,8 +53,13 @@ namespace Rpcsharp
             { 
                 // this constant is a rpc root => add a parameter 
                 var rpc = (IRpcRoot) node.Value;
-                rpcRootsParameters.Add(rpc);
-                return new ConstEval("r" + rpcRootsParameters.Count);
+                var r = rpcRootsParameters.IndexOf(rpc) + 1;
+                if (r <= 0)
+                {
+                    rpcRootsParameters.Add(rpc);
+                    r = rpcRootsParameters.Count;
+                }
+                return new ConstEval("r" + r);
             }
 
             // todo: two ways implicit converions ?
@@ -250,6 +253,21 @@ namespace Rpcsharp
         }
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (!node.Method.IsStatic && typeof (IRpcPromise).IsAssignableFrom(node.Object.Type))
+            {
+                // promise evaluation ?
+                if (node.Method.Name != "Execute")
+                    throw new InvalidExpressionInRpcCallException(node, "Cannot execute method '" + node.Method.Name + "' on promise. Only 'Execute()' is alowed");
+
+                var objAsConst = node.Object as ConstantExpression;
+                if (objAsConst == null)
+                    throw new InvalidExpressionInRpcCallException(node, "Cannot execute child RPC call, because it seems that it does not match the pattern 'myPromise.Execute()'");
+                var promise = (IRpcPromise) objAsConst.Value;
+                if (promise == null)
+                    throw new InvalidExpressionInRpcCallException(node, "Cannot execute 'null' child RPC call");
+                return Visit(promise.Expression);
+            }
+
             var args = node.Arguments
                 .Select(Visit)
                 .ToArray();
@@ -261,11 +279,8 @@ namespace Rpcsharp
             return new OpExpression(Priority.Primary, ".", node.Expression, new ConstEval(node.Member.Name));
         }
 
-        public SerializedEvaluation Serialize(Expression exp)
+        public SerializedEvaluation Serialize(Expression simplified)
         {
-            // simplify inner constants (evaluates what can be evaluated)
-            var simplified = ExpressionSimplifier.Simplify(exp);
-
             var visited = Visit(simplified);
             var asEval = visited as IEvaluatesToString;
             if (asEval == null)

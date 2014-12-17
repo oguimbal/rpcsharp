@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PromiseTests.cs" />
     <Compile Include="CallTests.cs" />
     <Compile Include="Model\FakeModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
