@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RpcTests", "RpcTests\RpcTests.csproj", "{4B9F41DD-05B8-40BE-99BC-2C6D562C4E93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpcsharp", "Rpcsharp\Rpcsharp.csproj", "{1574BF67-6512-4C4B-89A1-EECB27FEC389}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B9F41DD-05B8-40BE-99BC-2C6D562C4E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B9F41DD-05B8-40BE-99BC-2C6D562C4E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B9F41DD-05B8-40BE-99BC-2C6D562C4E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B9F41DD-05B8-40BE-99BC-2C6D562C4E93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1574BF67-6512-4C4B-89A1-EECB27FEC389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1574BF67-6512-4C4B-89A1-EECB27FEC389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1574BF67-6512-4C4B-89A1-EECB27FEC389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1574BF67-6512-4C4B-89A1-EECB27FEC389}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
