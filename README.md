@@ -8,14 +8,14 @@ This is still a baby project... I will publish it on nuget soon.
 
 ... and develop automatic client-side interfaces implementation (will allow to manipulate client side objects that are defined by a common inteface, which implementation only exists server-side)
 
-... and develop promises
-
-... and add much more features
+... and add much more features to come
 
 ...soon.
 
 What is it, and what does it do ?
 ========
+
+> tip : RPC stands for Remote Procedure Call.
 
 RPC# intends to provide an easy way to trigger remote code execution, and remote object handling.
 Whatever data provider you use, whatever way you connect to your server (WCF, sockets, HttpClient, ServiceStack...).
@@ -79,4 +79,40 @@ IMyObjectA remoteA; IMyObjectB remoteB; // objects that implement IRpcRoot
 
 // this will only take one network call, and execute compositions server-side
 var result = service.Call(()=> remoteA.GetSomethin(remoteB.Crap()) + remoteA.ReturnInt());
+
+// call promises (reusable calls) :
+var promise = service.CallPromise(()=> remoteA.GetSomethin(remoteB.Crap()) );
+
+var mult = service.Call(()=>promise.Execute() * remoteA.ReturnInt());
+var div  = service.Call(()=>promise.Execute() / remoteA.ReturnInt());
+```
+
+
+Other features
+========
+
+#### 1) Async/await pattern support
+
+The example above shows how to implement a blocking fashion RPC.
+
+RPC# also supports asynchronous calls: You just have to implement IRpcServiceAsync instead of IRpcService.
+Resulting calls are almost the same:
+
+```C#
+// Note that in this mode, there is no "CallPromise" method: 
+// All calls not awaited are not ran until awaited;
+// and thus are, by definition, promises.
+
+var promise = service.Call(()=> remoteA.GetSomethin(remoteB.Crap()) );
+
+// will run TWICE the same server call. Usefull for non pure methods.
+await promise;
+await promise;
+
+// Force blocking evaluation.
+var promiseResult = promise.Execute();
+
+// reuse promise in sub-calls... promise evaluation will happen server side.
+var mult = await service.Call(()=>promise.Execute() * remoteA.ReturnInt());
+var div  = await service.Call(()=>promise.Execute() / remoteA.ReturnInt());
 ```
