@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using Rpcsharp;
-using RpcTests.Model;
 
-namespace RpcTests
+namespace RpcTests.RemoteCall
 {
     [TestFixture]
     public class CallTests

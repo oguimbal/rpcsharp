@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Rpcsharp;
 
-namespace RpcTests.Model
+namespace RpcTests.RemoteCall
 {
 
     public interface IFakeRoot : IRpcRoot

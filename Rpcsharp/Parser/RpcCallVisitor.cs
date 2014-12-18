@@ -34,17 +34,19 @@ namespace Rpcsharp.Parser
         protected override Expression VisitConstant(ConstantExpression node)
         {
             if(typeof(IRpcRoot).IsAssignableFrom(node.Type))
-            { 
+            {
                 // this constant is a rpc root => add a parameter 
                 var rpc = (IRpcRoot) node.Value;
-                var r = rpcRootsParameters.IndexOf(rpc) + 1;
-                if (r <= 0)
-                {
-                    rpcRootsParameters.Add(rpc);
-                    r = rpcRootsParameters.Count;
-                }
-                return new ConstEval("r" + r);
+                return AddRootParam(rpc);
             }
+
+            if (node.Type.IsArray && typeof (IRpcRoot).IsAssignableFrom(node.Type.GetElementType()))
+            { // array of rpc roots
+                var roots = (IRpcRoot[]) node.Value;
+                // todo: simplify this... results will get unusefully big on large arrays
+                return new ArgumentsWrap(true, roots.Select(AddRootParam).ToArray());
+            }
+
 
             // todo: two ways implicit converions ?
 
@@ -86,6 +88,17 @@ namespace Rpcsharp.Parser
                 default:
                     throw new InvalidConstantInRpcCallException(node);
             }
+        }
+
+        Expression AddRootParam(IRpcRoot rpc)
+        {
+            var r = rpcRootsParameters.IndexOf(rpc) + 1;
+            if (r <= 0)
+            {
+                rpcRootsParameters.Add(rpc);
+                r = rpcRootsParameters.Count;
+            }
+            return new ConstEval("r" + r);
         }
 
 
@@ -211,6 +224,7 @@ namespace Rpcsharp.Parser
 
         class ArgumentsWrap : Expression, IEvaluatesToString
         {
+            readonly bool _isNewArray;
             readonly IEvaluatesToString[] _args;
 
             public ArgumentsWrap(Expression[] args)
@@ -220,10 +234,21 @@ namespace Rpcsharp.Parser
                     throw new InvalidExpressionInRpcCallException(invalid, "Not supported expression");
                 _args = args.Cast<IEvaluatesToString>().ToArray();
             }
+            public ArgumentsWrap(bool isNewArray, Expression[] args)
+            {
+                _isNewArray = isNewArray;
+                var invalid = args.FirstOrDefault(x => !(x is IEvaluatesToString));
+                if (invalid != null)
+                    throw new InvalidExpressionInRpcCallException(invalid, "Not supported expression");
+                _args = args.Cast<IEvaluatesToString>().ToArray();
+            }
 
             public void AsString(StringBuilder build)
             {
-                build.Append("(");
+                if (_isNewArray)
+                    build.Append("new IRpcRoot[]{");
+                else
+                    build.Append("(");
                 bool next = false;
                 foreach (var arg in _args)
                 {
@@ -232,7 +257,10 @@ namespace Rpcsharp.Parser
                     next = true;
                     arg.AsString(build);
                 }
-                build.Append(")");
+                if (_isNewArray)
+                    build.Append("}");
+                else
+                    build.Append(")");
             }
         }
         protected override Expression VisitMethodCall(MethodCallExpression node)

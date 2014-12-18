@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ExpressionEvaluator;
@@ -38,9 +40,9 @@ namespace Rpcsharp
         {
             if (evaluation == null || string.IsNullOrEmpty(evaluation.Evaluation))
                 return null;
-
             
             var reg = new TypeRegistry();
+
             for (int i = 0; i < evaluation.References.Length; i++)
             {
                 reg.RegisterSymbol("r" + (i + 1), await referenceResolver(evaluation.References[i]).ConfigureAwait(false));
@@ -51,11 +53,11 @@ namespace Rpcsharp
             };
             return p.Eval();
         }
+
         internal static object HandleResult(SerializedEvaluation evaluation, Func<string, IRpcRoot> referenceResolver)
         {
             if (evaluation == null || string.IsNullOrEmpty(evaluation.Evaluation))
                 return null;
-
             
             var reg = new TypeRegistry();
             for (int i = 0; i < evaluation.References.Length; i++)

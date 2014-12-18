@@ -53,11 +53,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Proxy.cs" />
+    <Compile Include="RpcSerializer.cs" />
     <Compile Include="_Contracts.cs" />
     <Compile Include="_Exceptions.cs" />
     <Compile Include="ExpressionUtilities.cs" />
-    <Compile Include="InterfaceImplementer.cs" />
-    <Compile Include="Rpc.cs" />
+    <Compile Include="Proxying\InterfaceImplementer.cs" />
+    <Compile Include="RpcExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parser\RpcCallVisitor.cs" />
     <Compile Include="Parser\ExpressionSimplifier.cs" />

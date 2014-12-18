@@ -4,11 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Rpcsharp
+namespace Rpcsharp.Proxying
 {
     namespace Private
     {
@@ -34,9 +31,9 @@ namespace Rpcsharp
 
         static InterfaceImplementer()
         {
-            var name = new AssemblyName {Name = "RpcSharpDynamicTypes.dll"};
+            var name = new AssemblyName {Name = "RpcSharpDynamicTypes"};
             AssemblyBuilder assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndCollect);
-            ModuleBuilder = assembly.DefineDynamicModule(name.Name, name.Name, false);
+            ModuleBuilder = assembly.DefineDynamicModule(name.Name, name.Name + ".dll", false);
         }
 
         static class Creators<T>

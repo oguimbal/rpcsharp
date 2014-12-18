@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Rpcsharp;
-using Rpcsharp.Private;
+using Rpcsharp.Proxying;
+using Rpcsharp.Proxying.Private;
 
-namespace RpcTests
+namespace RpcTests.Proxying
 {
     [TestFixture]
     public class InterfaceImplementerTests
@@ -78,6 +75,14 @@ namespace RpcTests
 
             Assert.False(((object)x).Equals(null));
             Assert.False(((object)x).Equals(new object()));
+        }
+
+
+        [Test]
+        public void Stub()
+        {
+            var stub = Proxy.Stub<ITests>("ref");
+            Assert.AreEqual("ref", stub.Reference);
         }
         
     }

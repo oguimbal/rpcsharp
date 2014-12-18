@@ -62,6 +62,12 @@ namespace Rpcsharp
     }
 
 
+    public interface IRpcLoadService
+    {
+        void Load<T>(string reference);
+    }
+
+
     /// <summary>
     /// Represents an evaluation: Either a request, or a return value.
     /// </summary>

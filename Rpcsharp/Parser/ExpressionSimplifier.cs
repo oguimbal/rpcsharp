@@ -78,9 +78,11 @@ namespace Rpcsharp.Parser
                         return node;
                     }
 
-                    evaluate = evaluate && node.Method.GetCustomAttribute<RpcAttribute>(true) == null;
+                    var isRoot = typeof (IRpcRoot).IsAssignableFrom(node.Object.Type);
+                    if (isRoot && (node.Object.Type.IsInterface || node.Method.GetCustomAttribute<RpcAttribute>(true) != null))
+                        evaluate = false;
 
-                    if (evaluate && !node.Object.Type.IsInterface && typeof (IRpcRoot).IsAssignableFrom(node.Object.Type))
+                    if (evaluate && !node.Object.Type.IsInterface && isRoot)
                     {
                         // lets get suspicious: No RpcAttribute on an rpc root object ? That may be a 'fake' implementation of a rpc method
                         var rpcIntefaces = node.Object.Type

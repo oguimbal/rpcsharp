@@ -150,6 +150,20 @@ namespace Rpcsharp
             var visitor = new RpcCallVisitor();
             var visited = visitor.Serialize(_call);
             var result = _service.InvokeRemote(visited);
+
+            // todo: This is an horrible hack to allow rpc roots arrays to be returned... 
+            if (typeof(IRpcRoot[]).IsAssignableFrom(typeof(T)) && result != null)
+            {
+                var elt = typeof (T).GetElementType();
+                // todo: what happens on a null array  ?
+                var array = (IRpcRoot[]) Array.CreateInstance(elt, result.References.Length);
+                for(int i=0;i< result.References.Length;i++)
+                {
+                    array[i] = _service.ResolveReference(result.References[i]);
+                }
+                return (T) (object) array;
+            }
+
             var handled = RpcEvaluator.HandleResult(result, _service.ResolveReference);
             return (T)handled;
         }
@@ -161,9 +175,26 @@ namespace Rpcsharp
             var result = await _serviceAsync
                 .InvokeRemoteAsync(visited)
                 .ConfigureAwait(false);
+
+            // todo: This is an horrible hack to allow rpc roots arrays to be returned... 
+            if (typeof(IRpcRoot[]).IsAssignableFrom(typeof(T)) && result != null)
+            {
+                var elt = typeof(T).GetElementType();
+                // todo: what happens on a null array  ?
+                var array = (IRpcRoot[])Array.CreateInstance(elt, result.References.Length);
+                for (int i = 0; i < result.References.Length; i++)
+                {
+                    array[i] = await _serviceAsync.ResolveReferenceAsync(result.References[i])
+                                                    .ConfigureAwait(false);
+                }
+                return (T)(object)array;
+            }
+
+
             var handled = await RpcEvaluator
                 .HandleResultAsync(result, _serviceAsync.ResolveReferenceAsync)
                 .ConfigureAwait(false);
+
             return (T)handled;
         }
     }

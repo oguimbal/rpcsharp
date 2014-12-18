@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4B9F41DD-05B8-40BE-99BC-2C6D562C4E93}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{0DEB5FE7-1A75-43A5-9936-FADFEDBDE0DA}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RpcTests</RootNamespace>
-    <AssemblyName>RpcTests</AssemblyName>
+    <RootNamespace>Server</RootNamespace>
+    <AssemblyName>Server</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -20,9 +21,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,19 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\Rpcsharp\rpcsharp.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,34 +41,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Proxying\InterfaceImplementerTests.cs" />
-    <Compile Include="RemoteCall\PromiseTests.cs" />
-    <Compile Include="RemoteCall\CallTests.cs" />
-    <Compile Include="RemoteCall\FakeModel.cs" />
+    <Compile Include="Model\ServerFile.cs" />
+    <Compile Include="Model\ServerDirectory.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SampleTests.cs" />
+    <Compile Include="ServiceStackServer.cs" />
+    <Compile Include="WcfServer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Rpcsharp\rpcsharp.snk">
-      <Link>rpcsharp.snk</Link>
-    </None>
-    <None Include="packages.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Rpcsharp\Rpcsharp.csproj">
+    <ProjectReference Include="..\..\Rpcsharp\Rpcsharp.csproj">
       <Project>{1574BF67-6512-4C4B-89A1-EECB27FEC389}</Project>
       <Name>Rpcsharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Samples\Client\Client.csproj">
-      <Project>{80236522-996D-4FEA-8CC1-185B96A7B893}</Project>
-      <Name>Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Samples\Interfaces\Interfaces.csproj">
+    <ProjectReference Include="..\Interfaces\Interfaces.csproj">
       <Project>{763BA744-944D-46A3-9B99-F8CAC1DFB0A1}</Project>
       <Name>Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
