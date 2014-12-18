@@ -59,8 +59,8 @@
     <Compile Include="InterfaceImplementer.cs" />
     <Compile Include="Rpc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RpcCallVisitor.cs" />
-    <Compile Include="ExpressionSimplifier.cs" />
+    <Compile Include="Parser\RpcCallVisitor.cs" />
+    <Compile Include="Parser\ExpressionSimplifier.cs" />
     <Compile Include="RpcEvaluator.cs" />
     <Compile Include="RpcPromise.cs" />
   </ItemGroup>

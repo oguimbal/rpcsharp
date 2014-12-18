@@ -2,11 +2,21 @@
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ExpressionEvaluator;
+using Rpcsharp.Parser;
 
 namespace Rpcsharp
 {
+    /// <summary>
+    /// Server-side handler of RPC# requests
+    /// </summary>
     public static class RpcEvaluator
     {
+        /// <summary>
+        /// Function to call when a server request is received
+        /// </summary>
+        /// <param name="evaluation">The incoming request</param>
+        /// <param name="referenceResolver">Your reference loader: Resolves references to server-side objects</param>
+        /// <returns></returns>
         public static SerializedEvaluation HandleIncomingRequest(SerializedEvaluation evaluation, Func<string, IRpcRoot> referenceResolver)
         {
             var reg = new TypeRegistry();

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Rpcsharp
+namespace Rpcsharp.Parser
 {
 
-    public static class ExpressionSimplifier
+    static class ExpressionSimplifier
     {
         public static Expression Simplify(Expression expression)
         {
@@ -36,10 +36,7 @@ namespace Rpcsharp
                 evaluate = true;
                 var visited = base.Visit(node);
                 // when arriving here, 'evaluate' is true only if sub-evaluations can be evaluated
-                if (evaluate
-                    && node.NodeType != ExpressionType.Lambda
-                    && node.NodeType != ExpressionType.Parameter
-                    && node.NodeType != ExpressionType.Constant)
+                if (evaluate)
                     mayBeEvaluated.Add(node);
 
                 evaluate = oldEvaluate && evaluate;
@@ -121,8 +118,12 @@ namespace Rpcsharp
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (node.Expression != null)
+                {
                     Visit(node.Expression);
-                evaluate = evaluate && node.Member.GetCustomAttribute<RpcAttribute>() == null;
+                    evaluate = evaluate 
+                        && mayBeEvaluated.Contains(node.Expression)
+                        && !typeof (IRpcRoot).IsAssignableFrom(node.Expression.Type);
+                }
                 return node;
             }
         }

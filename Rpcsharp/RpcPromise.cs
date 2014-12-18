@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Rpcsharp.Parser;
 
 namespace Rpcsharp
 {
@@ -10,6 +11,12 @@ namespace Rpcsharp
         Expression Expression { get; }
     }
 
+    /// <summary>
+    /// Represents the promise of server-side computation
+    /// </summary>
+    /// <remarks>
+    /// This object is awaitable
+    /// </remarks>
     public class RpcPromise :
         IRpcPromise
     {
@@ -82,6 +89,12 @@ namespace Rpcsharp
         }
     }
 
+    /// <summary>
+    /// Represents the promise of server-side computation, with a result
+    /// </summary>
+    /// <remarks>
+    /// This object is awaitable
+    /// </remarks>
     public class RpcPromise<T> : IRpcPromise
     {
         readonly IRpcService _service;
