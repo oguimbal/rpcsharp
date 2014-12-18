@@ -50,9 +50,9 @@ namespace RpcTests.Model
             Assert.Fail("Unexpected client side call");
         }
 
-        public string GetReference()
+        public string Reference
         {
-            return "ClassRootRef";
+            get { return "ClassRootRef"; }
         }
     }
     public class ClassRootServer : IRpcRoot
@@ -62,10 +62,13 @@ namespace RpcTests.Model
         {
         }
 
-        public string GetReference()
+        public string Reference
         {
-            Assert.Fail("Unexpected client server side call");
-            return null;
+            get
+            {
+                Assert.Fail("Unexpected client server side call");
+                return null;
+            }
         }
     }
 
@@ -108,9 +111,9 @@ namespace RpcTests.Model
             return 0;
         }
 
-        public string GetReference()
+        public string Reference
         {
-            return "InterfaceRootImplRef";
+            get { return "InterfaceRootImplRef"; }
         }
     }
 
@@ -136,10 +139,13 @@ namespace RpcTests.Model
             return a + b ;
         }
 
-        public string GetReference()
+        public string Reference
         {
-            Assert.Fail("Unexpected client server side call");
-            return null;
+            get
+            {
+                Assert.Fail("Unexpected client server side call");
+                return null;
+            }
         }
     }
 }

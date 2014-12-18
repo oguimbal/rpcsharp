@@ -7,27 +7,11 @@ using System.Text;
 
 namespace Rpcsharp
 {
-    public class InvalidExpressionInRpcCallException : Exception
-    {
-        public Expression InvalidExpression { get; private set; }
-
-        public InvalidExpressionInRpcCallException( Expression exp, string message) : base(message+" in "+exp)
-        {
-            InvalidExpression = exp;
-        }
-    }
-    public class InvalidConstantInRpcCallException : InvalidExpressionInRpcCallException
-    {
-        public InvalidConstantInRpcCallException(ConstantExpression constant) 
-            : base(constant, "Cannot convert type " + constant.Type + " into a compile-time literal value, nor into a IRpcRoot.")
-        {
-        }
-    }
-
     interface IEvaluatesToString
     {
         void AsString(StringBuilder build);
     }
+
     class RpcCallVisitor : ExpressionVisitor
     {
         class ConstEval : Expression, IEvaluatesToString
@@ -292,7 +276,7 @@ namespace Rpcsharp
             return new SerializedEvaluation
             {
                 Evaluation = serialized,
-                References = rpcRootsParameters.Select(x=>x.GetReference()).ToArray(),
+                References = rpcRootsParameters.Select(x=>x.Reference).ToArray(),
             };
         }
     }

@@ -34,3 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: InternalsVisibleTo("RpcTests, PublicKey=00240000048000009400000006020000002400005253413100040000010001003ffe82c0d7c93ba9fdf0f641940acce59314f8955828f6e41dbf8653e6275c721a68948979fcdbf9c5c061a7a7b2fe06e51b10e4f20c7e85b97834be08a917b7b46bab03541f3096ccdd1f8549293be7bb374427b8a2299fb9c64f8b6fb5fe189d166b18e6c12c7f49b7eab3af802512bc0a2b4da004b8b4f662a7a6690689ad")]
