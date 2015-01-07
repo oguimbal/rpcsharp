@@ -38,7 +38,8 @@ namespace RpcTests.RemoteCall
 
         public Task<IRpcRoot> ResolveReferenceAsync(string reference)
         {
-            throw new NotImplementedException();
+            Assert.Fail("Not called");
+            return null;
         }
     }
 

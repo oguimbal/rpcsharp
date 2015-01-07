@@ -7,12 +7,9 @@ using System.Reflection.Emit;
 
 namespace Rpcsharp.Proxying
 {
-    namespace Private
+    public interface IProxy
     {
-        public interface IReferenceSetter
-        {
-            void SetReference(string reference);
-        }
+        void SetReference(string reference);
     }
 
     /// <summary>
@@ -47,15 +44,16 @@ namespace Rpcsharp.Proxying
             if (Creators<T>.Create != null)
                 return Creators<T>.Create();
 
-            var implemented = Implement(typeof (T));
+            var implemented = Implement<T>();
             Creators<T>.Create = Expression.Lambda<Func<T>>(Expression.New(implemented.GetConstructor(new Type[0])))
                                             .Compile();
             return Creators<T>.Create();
         }
         
 
-        static Type Implement(Type interfaceType)
+        internal static Type Implement<T>()
         {
+            Type interfaceType = typeof (T);
             lock (Implementations)
             {
                 Type generated;
@@ -71,7 +69,7 @@ namespace Rpcsharp.Proxying
                     , interfaces: new Type[] { interfaceType }
                     );
                 type.AddInterfaceImplementation(interfaceType);
-                type.AddInterfaceImplementation(typeof(Private.IReferenceSetter));
+                type.AddInterfaceImplementation(typeof(IProxy));
 
                 // implement IEquatable<self>
                 var equalsMethod = ImplementEquatable(type, interfaceType);
@@ -167,7 +165,7 @@ namespace Rpcsharp.Proxying
                         var hasSet = pinfo.GetSetMethod() != null;
                         MethodBuilder setMethod = type.DefineMethod(
                             "set_" + pinfo.Name
-                            , attributes: hasSet ? (GetSetAttr | MethodAttributes.Public) : GetSetAttr
+                            , attributes: (hasSet ? GetSetAttr | MethodAttributes.Public : GetSetAttr)
                             , returnType: typeof(void)
                             , parameterTypes: new[] {pinfo.PropertyType});
 
@@ -222,7 +220,7 @@ namespace Rpcsharp.Proxying
                     pb.SetGetMethod(getRefBuilder);
 
 
-                    var setRefBuilder = CreateMethod(type, typeof(Private.IReferenceSetter).GetMethods().Single());
+                    var setRefBuilder = CreateMethod(type, typeof(IProxy).GetMethods().Single());
                     il = setRefBuilder.GetILGenerator();
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldarg_1);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Rpcsharp;
 using Rpcsharp.Proxying;
-using Rpcsharp.Proxying.Private;
 
 namespace RpcTests.Proxying
 {
@@ -28,11 +27,22 @@ namespace RpcTests.Proxying
         }
 
         [Test]
-        public void Set()
+        public void SetPublic()
         {
             var x = InterfaceImplementer.Create<ITests>();
             x.PublicSet = "test";
             Assert.AreEqual("test", x.PublicSet);
+        }
+
+        [Test]
+        public void SetPrivate()
+        {
+            var stub = Proxy.Stub<ITests>("ref")
+                .Set(x => x.PrivateSet, "Test")
+                .Set(x => x.PublicSet, "Public");
+
+            Assert.AreEqual("Test", stub.PrivateSet);
+            Assert.AreEqual("Public", stub.PublicSet);
         }
 
         [Test, ExpectedException(typeof(CannotCallRemoteMethodException))]
@@ -55,9 +65,9 @@ namespace RpcTests.Proxying
             var x = InterfaceImplementer.Create<ITests>();
             var xbis = InterfaceImplementer.Create<ITests>();
             var y = InterfaceImplementer.Create<ITests>();
-            ((IReferenceSetter) x).SetReference("x");
-            ((IReferenceSetter) xbis).SetReference("x");
-            ((IReferenceSetter) y).SetReference("y");
+            ((IProxy) x).SetReference("x");
+            ((IProxy) xbis).SetReference("x");
+            ((IProxy) y).SetReference("y");
 
             // check default compararer (used by dictionaries, and co)
             Assert.IsTrue(EqualityComparer<ITests>.Default.Equals(x, xbis));
@@ -84,6 +94,7 @@ namespace RpcTests.Proxying
             var stub = Proxy.Stub<ITests>("ref");
             Assert.AreEqual("ref", stub.Reference);
         }
+
         
     }
 }

@@ -54,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Proxy.cs" />
-    <Compile Include="RpcSerializer.cs" />
     <Compile Include="_Contracts.cs" />
     <Compile Include="_Exceptions.cs" />
     <Compile Include="ExpressionUtilities.cs" />
