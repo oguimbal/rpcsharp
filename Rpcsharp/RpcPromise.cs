@@ -23,6 +23,7 @@ namespace Rpcsharp
         readonly IRpcService _service;
         readonly IRpcServiceAsync _serviceAsync;
         readonly Expression _call;
+        readonly bool _continueOnCapturedContext = true;
         Expression IRpcPromise.Expression { get { return _call; } }
 
         internal RpcPromise(IRpcService service, Expression<Action> call)
@@ -30,10 +31,25 @@ namespace Rpcsharp
             _service = service;
             _call = ExpressionSimplifier.Simplify(call.Body);
         }
+
+        RpcPromise(IRpcService service, Expression call, bool continueOnCapturedContext)
+        {
+            _service = service;
+            _call = call;
+            _continueOnCapturedContext = continueOnCapturedContext;
+        }
+
         internal RpcPromise(IRpcServiceAsync service, Expression<Action> call)
         {
             _serviceAsync = service;
             _call = ExpressionSimplifier.Simplify(call.Body);
+        }
+
+        RpcPromise(IRpcServiceAsync service, Expression call, bool continueOnCapturedContext)
+        {
+            _serviceAsync = service;
+            _call = call;
+            _continueOnCapturedContext = continueOnCapturedContext;
         }
 
         /// <summary>
@@ -48,7 +64,7 @@ namespace Rpcsharp
             }
 
             InternalExecuteAsync()
-                .ConfigureAwait(false)
+                .ConfigureAwait(_continueOnCapturedContext)
                 .GetAwaiter()
                 .GetResult();
         }
@@ -59,12 +75,12 @@ namespace Rpcsharp
             if (_service != null)
             {
                 return Task.Run((Action)InternalExecute)
-                    .ConfigureAwait(false)
+                    .ConfigureAwait(_continueOnCapturedContext)
                     .GetAwaiter();
             }
 
             return InternalExecuteAsync()
-                .ConfigureAwait(false)
+                .ConfigureAwait(_continueOnCapturedContext)
                 .GetAwaiter();
         }
 
@@ -82,10 +98,17 @@ namespace Rpcsharp
             var visited = visitor.Serialize(_call);
             var result = await _serviceAsync
                 .InvokeRemoteAsync(visited)
-                .ConfigureAwait(false);
+                .ConfigureAwait(_continueOnCapturedContext);
             await RpcEvaluator
                 .HandleResultAsync(result, _serviceAsync.ResolveReferenceAsync)
-                .ConfigureAwait(false);
+                .ConfigureAwait(_continueOnCapturedContext);
+        }
+
+        public RpcPromise ConfigureAwait(bool continueOnCapturedContext)
+        {
+            if (_service != null)
+                return new RpcPromise(_service, _call, continueOnCapturedContext);
+            return new RpcPromise(_serviceAsync, _call, continueOnCapturedContext);
         }
     }
 
@@ -100,12 +123,20 @@ namespace Rpcsharp
         readonly IRpcService _service;
         readonly IRpcServiceAsync _serviceAsync;
         readonly Expression _call;
+        readonly bool _continueOnCapturedContext = true;
+
         Expression IRpcPromise.Expression { get { return _call; } }
 
         internal RpcPromise(IRpcService service, Expression<Func<T>> call)
         {
             _service = service;
             _call = ExpressionSimplifier.Simplify(call.Body);
+        }
+        RpcPromise(IRpcService service, Expression call, bool continueOnCapturedContext)
+        {
+            _service = service;
+            _call = call;
+            _continueOnCapturedContext = continueOnCapturedContext;
         }
 
         internal RpcPromise(IRpcServiceAsync service, Expression<Func<T>> call)
@@ -114,6 +145,12 @@ namespace Rpcsharp
             _call = ExpressionSimplifier.Simplify(call.Body);
         }
 
+        RpcPromise(IRpcServiceAsync service, Expression call, bool continueOnCapturedContext)
+        {
+            _serviceAsync = service;
+            _call = call;
+            _continueOnCapturedContext = continueOnCapturedContext;
+        }
         /// <summary>
         /// Executes this RPC promise synchronously. Tiggering it multiple times will execute it multiple times.
         /// </summary>
@@ -125,7 +162,7 @@ namespace Rpcsharp
             }
 
             return InternalExecuteAsync()
-                .ConfigureAwait(false)
+                .ConfigureAwait(_continueOnCapturedContext)
                 .GetAwaiter()
                 .GetResult();
         }
@@ -135,12 +172,12 @@ namespace Rpcsharp
             if (_service != null)
             {
                 return Task.Run((Func<T>)InternalExecute)
-                    .ConfigureAwait(false)
+                    .ConfigureAwait(_continueOnCapturedContext)
                     .GetAwaiter();
             }
 
             return InternalExecuteAsync()
-                .ConfigureAwait(false)
+                .ConfigureAwait(_continueOnCapturedContext)
                 .GetAwaiter();
         }
 
@@ -174,7 +211,7 @@ namespace Rpcsharp
             var visited = visitor.Serialize(_call);
             var result = await _serviceAsync
                 .InvokeRemoteAsync(visited)
-                .ConfigureAwait(false);
+                .ConfigureAwait(_continueOnCapturedContext);
 
             // todo: This is an horrible hack to allow rpc roots arrays to be returned... 
             if (typeof(IRpcRoot[]).IsAssignableFrom(typeof(T)) && result != null)
@@ -185,7 +222,7 @@ namespace Rpcsharp
                 for (int i = 0; i < result.References.Length; i++)
                 {
                     array[i] = await _serviceAsync.ResolveReferenceAsync(result.References[i])
-                                                    .ConfigureAwait(false);
+                                                    .ConfigureAwait(_continueOnCapturedContext);
                 }
                 return (T)(object)array;
             }
@@ -193,9 +230,16 @@ namespace Rpcsharp
 
             var handled = await RpcEvaluator
                 .HandleResultAsync(result, _serviceAsync.ResolveReferenceAsync)
-                .ConfigureAwait(false);
+                .ConfigureAwait(_continueOnCapturedContext);
 
             return (T)handled;
+        }
+
+        public RpcPromise<T> ConfigureAwait(bool continueOnCapturedContext)
+        {
+            if (_service != null)
+                return new RpcPromise<T>(_service, _call, continueOnCapturedContext);
+            return new RpcPromise<T>(_serviceAsync, _call, continueOnCapturedContext);
         }
     }
 }
